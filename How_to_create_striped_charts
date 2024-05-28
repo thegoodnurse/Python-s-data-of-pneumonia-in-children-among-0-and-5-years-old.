@@ -1,0 +1,40 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Carregar os dados formatados
+formatted_data = pd.read_csv('AIH-PNEUMONIA.csv')
+
+# Extrair anos e categorias para o gráfico
+years = formatted_data.columns[2:].astype(int)
+categories = formatted_data['Raça/Cor'] + ' ' + formatted_data['Idade']
+stacked_data = formatted_data.iloc[:, 2:].transpose()
+
+# Criar o gráfico de barras empilhadas
+fig, ax1 = plt.subplots(figsize=(12, 8))
+
+# Definir cores para as categorias
+colors = plt.cm.tab20.colors
+
+bottoms = [0] * len(years)
+
+for i, category in enumerate(categories):
+    ax1.bar(years, stacked_data.iloc[:, i], bottom=bottoms, color=colors[i % len(colors)], label=category)
+    bottoms += stacked_data.iloc[:, i]
+
+# Adicionar o gráfico de linha (total de isolados por ano)
+total_isolates = formatted_data.iloc[:, 2:].sum(axis=0)
+ax2 = ax1.twinx()
+ax2.plot(years, total_isolates, color='black', marker='o', linestyle='-', linewidth=2, label='Total Isolates')
+
+# Adicionar rótulos e título
+ax1.set_xlabel('Ano de isolamento')
+ax1.set_ylabel('Porcentagem de sorotipos')
+ax2.set_ylabel('Número de isolados de S. pneumoniae')
+plt.title('Distribuição de Sorotipos de S. pneumoniae e Contagem de Isolados ao Longo do Tempo')
+
+# Adicionar legendas
+ax1.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+ax2.legend(loc='upper left', bbox_to_anchor=(1.05, 0.85), borderaxespad=0.)
+
+# Mostrar o gráfico
+plt.show()
